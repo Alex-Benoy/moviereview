@@ -1,34 +1,16 @@
-
 import * as cdk from 'aws-cdk-lib';
 import * as lambdanode from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
-
-import * as custom from "aws-cdk-lib/custom-resources";
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as custom from 'aws-cdk-lib/custom-resources';
 import { generateBatch } from "../shared/util";
-import {movieReviews} from "../seed/moviereviews";
-
-
+import { movieReviews } from "../seed/moviereviews";
+import * as apig from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 
 export class MoviereviewStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    const getMoviewReview = new lambdanode.NodejsFunction(this, "getMoviewReview", {
-      architecture: lambda.Architecture.ARM_64,
-      runtime: lambda.Runtime.NODEJS_22_X,
-      entry: `${__dirname}/../lambdas/getmoviereview.ts`,
-      timeout: cdk.Duration.seconds(10),
-      memorySize: 128,
-    });
-
-    const simpleFnURL = getMoviewReview.addFunctionUrl({
-      authType: lambda.FunctionUrlAuthType.AWS_IAM,
-      cors: {
-        allowedOrigins: ["*"],
-      },
-    });
 
     const movieReviewsTable = new dynamodb.Table(this, "MovieReviewTable", {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
@@ -38,7 +20,23 @@ export class MoviereviewStack extends cdk.Stack {
       tableName: "MovieReviews",
     });
 
-    new custom.AwsCustomResource(this, "moviesddbInitData", {
+    const getReviewByMovieIdFn = new lambdanode.NodejsFunction(
+      this,
+      "GetReviewByMovieFn",
+      {
+        architecture: lambda.Architecture.ARM_64,
+        runtime: lambda.Runtime.NODEJS_22_X,
+        entry: `${__dirname}/../lambdas/getReviewByMovieId.ts`,
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 128,
+        environment: {
+          TABLE_NAME: movieReviewsTable.tableName,
+          REGION: 'eu-west-1',
+        },
+      }
+    );
+
+    new custom.AwsCustomResource(this, "moviereviewsddbInitData", {
       onCreate: {
         service: "DynamoDB",
         action: "batchWriteItem",
@@ -47,14 +45,39 @@ export class MoviereviewStack extends cdk.Stack {
             [movieReviewsTable.tableName]: generateBatch(movieReviews),
           },
         },
-        physicalResourceId: custom.PhysicalResourceId.of("moviereviewssddbInitData"), //.of(Date.now().toString()),
+        physicalResourceId: custom.PhysicalResourceId.of("moviereviewsddbInitData"),
       },
       policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
         resources: [movieReviewsTable.tableArn],
       }),
+      logRetention: cdk.aws_logs.RetentionDays.ONE_DAY, // Enable logging
     });
 
-    new cdk.CfnOutput(this, "GetMoviewReview Function Url", { value: simpleFnURL.url });
+    const getReviewByMovieIdURL = getReviewByMovieIdFn.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.NONE,
+      cors: {
+        allowedOrigins: ["*"],
+      },
+    });
 
+    movieReviewsTable.grantReadData(getReviewByMovieIdFn);
+
+    const api = new apig.RestApi(this, "RestAPI", {
+      description: "demo api",
+      deployOptions: {
+        stageName: "dev",
+      },
+      defaultCorsPreflightOptions: {
+        allowHeaders: ["Content-Type", "X-Amz-Date"],
+        allowMethods: ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
+        allowCredentials: true,
+        allowOrigins: ["*"],
+      },
+    });
+
+    const movieReviewsEndpoint = api.root.addResource("movies");
+    const movieAllReviews = movieReviewsEndpoint.addResource("reviews");
+    const specificMovieReviews = movieAllReviews.addResource("{movieId}");
+    specificMovieReviews.addMethod("GET", new apig.LambdaIntegration(getReviewByMovieIdFn, { proxy: true }));
   }
 }
