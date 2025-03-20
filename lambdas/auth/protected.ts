@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandlerV2 = async function (event: any) {
   const verifiedJwt: JwtToken = await verifyToken(
     cookies.token,
     process.env.USER_POOL_ID,
-    process.env.REGION!
+    process.env.region!
   );
   console.log(JSON.stringify(verifiedJwt));
   return {

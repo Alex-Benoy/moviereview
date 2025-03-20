@@ -15,8 +15,8 @@ export const handler: APIGatewayRequestAuthorizerHandler = async (event) => {
 
   const verifiedJwt = await verifyToken(
     cookies.token,
-    'eu-west-1_5W7CBRKS7',
-    'eu-west-1'
+    process.env.USER_POOL_ID,
+    process.env.region!
   );
 
   return {

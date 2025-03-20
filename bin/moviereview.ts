@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { MoviereviewStack } from '../lib/moviereview-stack';
-import { AuthAppStack } from '../lib/auth-app-stack';
+import { MovieReviewStack } from '../lib/auth-app-stack';
+// import { AuthAppStack } from '../lib/auth-app-stack';
 
 const app = new cdk.App();
-new MoviereviewStack(app, 'MoviereviewStack', {
+new MovieReviewStack(app, 'MoviereviewStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
@@ -20,4 +20,4 @@ new MoviereviewStack(app, 'MoviereviewStack', {
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
 
-new AuthAppStack(app, 'AuthAPIStack',{});
+// new AuthAppStack(app, 'AuthAPIStack',{});
