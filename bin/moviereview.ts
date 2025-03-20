@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { MoviereviewStack } from '../lib/moviereview-stack';
+import { AuthAppStack } from '../lib/auth-app-stack';
 
 const app = new cdk.App();
 new MoviereviewStack(app, 'MoviereviewStack', {
@@ -18,3 +19,5 @@ new MoviereviewStack(app, 'MoviereviewStack', {
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
+
+new AuthAppStack(app, 'AuthAPIStack',{});
