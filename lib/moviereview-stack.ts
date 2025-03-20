@@ -73,6 +73,7 @@ export class MoviereviewStack extends cdk.Stack {
       },
     });
 
+
     new custom.AwsCustomResource(this, "moviereviewsddbInitData", {
       onCreate: {
         service: "DynamoDB",
@@ -100,6 +101,7 @@ export class MoviereviewStack extends cdk.Stack {
     movieReviewsTable.grantReadData(getReviewByMovieIdFn);   
     movieReviewsTable.grantReadWriteData(newMovieReviewFn);
     movieReviewsTable.grantReadWriteData(updateMovieReviewFn);
+
 
 
     const api = new apig.RestApi(this, "RestAPI", {
@@ -135,8 +137,8 @@ export class MoviereviewStack extends cdk.Stack {
     reviewTranslation.addMethod(
       "GET",
       new apig.LambdaIntegration(getReviewTranslationFn, { proxy: true })
-    
     );
+
     
     getReviewTranslationFn.addToRolePolicy(new PolicyStatement({
       effect : Effect.ALLOW,
