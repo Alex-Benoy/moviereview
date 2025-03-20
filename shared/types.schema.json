@@ -1,0 +1,86 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "ConfirmSignUpBody": {
+            "additionalProperties": false,
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "code",
+                "username"
+            ],
+            "type": "object"
+        },
+        "MovieReview": {
+            "additionalProperties": false,
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "movieid": {
+                    "type": "number"
+                },
+                "reviewdate": {
+                    "type": "string"
+                },
+                "reviewid": {
+                    "type": "number"
+                },
+                "reviwerid": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "content",
+                "movieid",
+                "reviewdate",
+                "reviewid",
+                "reviwerid"
+            ],
+            "type": "object"
+        },
+        "SignInBody": {
+            "additionalProperties": false,
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "password",
+                "username"
+            ],
+            "type": "object"
+        },
+        "SignUpBody": {
+            "additionalProperties": false,
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "type": "object"
+        }
+    }
+}
+
