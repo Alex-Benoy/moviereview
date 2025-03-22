@@ -22,7 +22,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       };
     }
 
-    // Parse the request body
     const body = event.body ? JSON.parse(event.body) : undefined;
     if (!body) {
       return {
@@ -52,8 +51,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       new UpdateCommand({
         TableName: process.env.TABLE_NAME,
         Key: {
-          movieid: parseInt(movieid), // Convert to number if movieid is stored as a number
-          reviewid: parseInt(reviewid), // Convert to number if reviewid is stored as a number
+          movieid: parseInt(movieid), 
+          reviewid: parseInt(reviewid),
         },
         UpdateExpression: "SET reviewdate = :reviewdate, content = :content",
         ExpressionAttributeValues: {

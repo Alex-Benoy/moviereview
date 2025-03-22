@@ -42,7 +42,7 @@ export class AppApi extends Construct {
       },
     };
 
-    // Lambda Functions for Movie Reviews
+    // Lambda Functions for retrieving Movie Reviews
     const getReviewByMovieIdFn = new node.NodejsFunction(this, "GetReviewByMovieFn", {
       ...appCommonFnProps,
       entry: `${__dirname}/../lambdas/getReviewByMovieId.ts`,
@@ -94,7 +94,7 @@ export class AppApi extends Construct {
       policy: custom.AwsCustomResourcePolicy.fromSdkCalls({
         resources: [movieReviewsTable.tableArn],
       }),
-      logRetention: cdk.aws_logs.RetentionDays.ONE_DAY, // Enable logging
+      logRetention: cdk.aws_logs.RetentionDays.ONE_DAY, 
     });
 
     // Grant permissions to Lambda functions
@@ -130,7 +130,6 @@ export class AppApi extends Construct {
       entry: "./lambdas/auth/public.ts",
     });
 
-    // Authorizer Lambda Function
     const authorizerFn = new node.NodejsFunction(this, "AuthorizerFn", {
       ...appCommonFnProps,
       entry: "./lambdas/auth/authorizer.ts",
@@ -175,7 +174,7 @@ export class AppApi extends Construct {
       new apig.LambdaIntegration(getReviewTranslationFn, { proxy: true })
     );
 
-    // Grant Translation Lambda Function permissions
+    //Translation Lambda Function permissions
     getReviewTranslationFn.addToRolePolicy(new PolicyStatement({
       effect: Effect.ALLOW,
       resources: ["*"],

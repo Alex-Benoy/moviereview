@@ -13,7 +13,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     // Extract movieid, reviewid, and language code from path parameters and query string
     const movieid = event.pathParameters?.movieid;
     const reviewid = event.pathParameters?.reviewid;
-    const languageCode = event.queryStringParameters?.language || "en"; // Default to English if no language is provided
+    const languageCode = event.queryStringParameters?.language || "en"; 
 
     if (!movieid || !reviewid) {
       return {
@@ -30,8 +30,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       new GetCommand({
         TableName: process.env.TABLE_NAME,
         Key: {
-          movieid: parseInt(movieid), // Convert to number if movieid is stored as a number
-          reviewid: parseInt(reviewid), // Convert to number if reviewid is stored as a number
+          movieid: parseInt(movieid), 
+          reviewid: parseInt(reviewid), 
         },
       })
     );
@@ -51,7 +51,7 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     // Translate the review content using AWS Translate
     const translateParams = {
       Text: reviewContent,
-      SourceLanguageCode: "en", // Assuming the source language is English
+      SourceLanguageCode: "en",
       TargetLanguageCode: languageCode,
     };
 
@@ -79,15 +79,3 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
   }
 };
 
-// function createDDbDocClient() {
-//   const ddbClient = new DynamoDBClient({ region: process.env.REGION });
-//   const marshallOptions = {
-//     convertEmptyValues: true,
-//     removeUndefinedValues: true,
-//     convertClassInstanceToMap: true,
-//   };
-//   const unmarshallOptions = {
-//     wrapNumbers: false,
-//   };
-//   const translateConfig = { marshallOptions, unmarshallOptions };
-//   return DynamoDBDocumentClient.from(ddbClient, translateConfig);

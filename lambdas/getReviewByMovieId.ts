@@ -24,11 +24,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
             };
         }
 
-        // Extract optional query parameters
-        // const queryParams = event.queryStringParameters || {};
-        // const reviewId = queryParams.reviewid ? parseInt(queryParams.reviewid, 10) : undefined;
-        // const reviewerId = queryParams.reviewerid;
-
         // Define the DynamoDB query
         const queryCommandInput: QueryCommandInput = {
             TableName: "MovieReviews",
@@ -37,21 +32,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
                 ":movieid": { N: movieId.toString() },
             },
         };
-
-        // Add filters for reviewId or reviewerId if provided
-        // if (reviewId && !isNaN(reviewId)) {
-        //     queryCommandInput.FilterExpression = "reviewid = :reviewid";
-        //     queryCommandInput.ExpressionAttributeValues = {
-        //         ...queryCommandInput.ExpressionAttributeValues,
-        //         ":reviewid": { N: reviewId.toString() },
-        //     };
-        // } else if (reviewerId) {
-        //     queryCommandInput.FilterExpression = "reviewerid = :reviewerid";
-        //     queryCommandInput.ExpressionAttributeValues = {
-        //         ...queryCommandInput.ExpressionAttributeValues,
-        //         ":reviewerid": { S: reviewerId },
-        //     };
-        // }
 
         // Query DynamoDB
         const response = await dynamoClient.send(new QueryCommand(queryCommandInput));
