@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import { UserPool } from "aws-cdk-lib/aws-cognito";
 import { AuthApi } from './auth-api'
 import {AppApi } from './app-api'
+import { FrontendStack } from "./frontendS3";
 
 
 
@@ -34,6 +35,8 @@ export class MovieReviewStack extends cdk.Stack {
       userPoolId: userPoolId,
       userPoolClientId: userPoolClientId,
     } );
+
+    new FrontendStack(this, 'FrontEndStack');
 
   } 
 

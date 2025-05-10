@@ -17,6 +17,79 @@
             ],
             "type": "object"
         },
+        "FantasyMovie": {
+            "additionalProperties": false,
+            "properties": {
+                "Genres": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "MovieId": {
+                    "type": "number"
+                },
+                "Overview": {
+                    "type": "string"
+                },
+                "ProductionCompanies": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "ReleaseDate": {
+                    "type": "string"
+                },
+                "Runtime": {
+                    "type": "number"
+                },
+                "Title": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Genres",
+                "MovieId",
+                "Overview",
+                "ProductionCompanies",
+                "ReleaseDate",
+                "Runtime",
+                "Title"
+            ],
+            "type": "object"
+        },
+        "FrontEndReview": {
+            "additionalProperties": false,
+            "properties": {
+                "Name": {
+                    "type": "string"
+                },
+                "Photo": {
+                    "type": "string"
+                },
+                "Rating": {
+                    "type": "string"
+                },
+                "Review": {
+                    "type": "string"
+                },
+                "ReviewId": {
+                    "type": "string"
+                },
+                "Writer": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Name",
+                "Photo",
+                "Rating",
+                "Review",
+                "Writer"
+            ],
+            "type": "object"
+        },
         "MovieReview": {
             "additionalProperties": false,
             "properties": {

@@ -28,6 +28,15 @@ export class AppApi extends Construct {
       tableName: "MovieReviews",
     });
 
+    //table for frontend
+     const reviewsTable = new dynamodb.Table(this, "FrontendReviewsTable", {
+        partitionKey: { name: "ReviewId", type: dynamodb.AttributeType.STRING },
+        billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        tableName: "FrontendReviewsTable",
+         // Change to RETAIN for production
+      });
+
     // Common Lambda Function Props
     const appCommonFnProps = {
       architecture: lambda.Architecture.ARM_64,
@@ -41,6 +50,23 @@ export class AppApi extends Construct {
         REGION: cdk.Aws.REGION,
       },
     };
+
+    // Create the postMovieReviews Lambda function
+    const addFrontendReview = new node.NodejsFunction(this, "AddFrontendReview", {
+      ...appCommonFnProps,
+      entry: `${__dirname}/../lambdas/reviewPost.ts` ,
+      environment: {
+        REVIEWS_TABLE_NAME: reviewsTable.tableName, // Set the table name as an environment variable
+      },
+    });
+
+    const retrieveMovieReviews = new node.NodejsFunction(this, "retrieveMovieReviews", {
+      ...appCommonFnProps,
+      entry: `${__dirname}/../lambdas/reviewGet.ts`,
+      environment: {
+        REVIEWS_TABLE_NAME: reviewsTable.tableName,
+      },
+    });
 
     // Lambda Functions for retrieving Movie Reviews
     const getReviewByMovieIdFn = new node.NodejsFunction(this, "GetReviewByMovieFn", {
@@ -101,6 +127,8 @@ export class AppApi extends Construct {
     movieReviewsTable.grantReadData(getReviewByMovieIdFn);
     movieReviewsTable.grantReadWriteData(newMovieReviewFn);
     movieReviewsTable.grantReadWriteData(updateMovieReviewFn);
+    reviewsTable.grantWriteData(addFrontendReview);
+    reviewsTable.grantReadData(retrieveMovieReviews);
 
     // API Gateway
     const appApi = new apig.RestApi(this, "AppApi", {
@@ -162,6 +190,7 @@ export class AppApi extends Construct {
     const specificMovie = movieReviewsEndpoint.addResource("{movieid}");
     const movieReviewsEnd = specificMovie.addResource("reviews");
     const specificReviewMovie = movieReviewsEnd.addResource("{reviewid}");
+    const reviewsResource = appApi.root.addResource("frontendreviews");
     specificReviewMovie.addMethod("PUT", new apig.LambdaIntegration(updateMovieReviewFn, { proxy: true }),{authorizer:requestAuthorizer,authorizationType:apig.AuthorizationType.CUSTOM});
 
     const reviewsEndpoint = appApi.root.addResource("reviews");
@@ -173,6 +202,16 @@ export class AppApi extends Construct {
       "GET",
       new apig.LambdaIntegration(getReviewTranslationFn, { proxy: true })
     );
+
+    // Add the POST method to the /reviews resource
+          reviewsResource.addMethod(
+            "POST",
+            new apig.LambdaIntegration(addFrontendReview, { proxy: true })
+          );
+    // Add the GET method to the /reviews resource
+          reviewsEndpoint.addMethod(
+            "GET",
+            new apig.LambdaIntegration(retrieveMovieReviews, { proxy: true }));
 
     //Translation Lambda Function permissions
     getReviewTranslationFn.addToRolePolicy(new PolicyStatement({
